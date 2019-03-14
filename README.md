@@ -1,7 +1,9 @@
-<<<<<<< HEAD
 # lec-electron
 
 > electron lecture app
+일렉트론과 Vue.js, Express를 활용한 수업용 코드 공유기입니다. 
+
+코드를 공유할 폴더를 선택하고 공유를 시작하면 교사의 PC에서 해당 폴더의 파일들을 열람 복사, 차이점 분석 등을 수행할 수 있습니다.
 
 ## Build Setup
 
