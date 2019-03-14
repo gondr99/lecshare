@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        #toast {
+            position: fixed;
+            bottom:20px; left:0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width:100%;
+
+        }
+
+        #toast > .msg {
+            min-width: 250px;
+            background-color: rgba(0,123, 255, 0.8);
+            text-align: center;
+            border-radius: 2px;
+            padding: 16px;
+            z-index: 2;
+            color:#fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div id="app">
+            <router-view>
+
+            </router-view>
+            <transition name="fade">
+                <div id="toast" v-if="showToast">
+                    <div class="msg">
+                        {{toastMsg}}
+                    </div>
+                </div>
+            </transition>
+        </div>    
+    </div>
+
+    <script src="/clientApp.js"></script>
+</body>
+</html>

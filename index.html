@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>lec-electron</title>
+    <style>
+      #alert-window {
+        position:fixed;
+        bottom:0;
+        width: 50%;
+        left:50%;
+        transform: translate(-50%, 0);
+        word-break: break-all;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div id="app">
+        <div class="alert alert-warning alert-dismissible fade show" role="alert" v-show="toast.show" id="alert-window">
+          <strong>{{toast.title}}</strong> {{toast.msg}}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <app></app>
+      </div>
+    </div>
+    <script src="./dist/build.js"></script>
+  </body>
+</html>
