@@ -43,7 +43,7 @@
             <h3 class="mb-2">코드보기</h3>
             <div class="row mb-2" v-if="codeData != ''">
                 <div class="col-12">
-                    <button type="button" class="btn btn-outline-primary btn-sm mr-2" @click="copyCode">코드 카피</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm mr-2" @click="copyCode" :disabled="!allowCopy">코드 카피</button>
                     <button type="button" class="btn btn-outline-info btn-sm" @click="showCompareWindow">내코드와 비교</button>
                 </div>
             </div>
@@ -84,11 +84,12 @@
 <script>
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
-
+import domtoimage from 'dom-to-image';
 
 export default {
     name: 'clientApp',
     mounted(){
+        
         if(this.$root.user == null){
             this.$http.get('/check-login')
             .then( res => {
@@ -121,7 +122,9 @@ export default {
             codePopup:false,
             comparedList:[],
             comparedLineList:[],
-            compareResult:''
+            compareResult:'',
+            allowCopy:true,
+            fileExt:['js', 'html', 'css', 'java', 'cpp', 'php', 'py', 'cs'],
         }
     },
     methods:{
@@ -322,10 +325,34 @@ export default {
                 file: target
             }).then( res => {
                 if(res.data.result){
-                    let content = res.data.data; //넘어온 파일
+                    let content = res.data.data.file; //넘어온 파일
                     this.codeData = content; //코드데이터에 저장해두고
-                    document.querySelector("#codeview code").innerText = content;
+                    let ext = target.substring(target.lastIndexOf(".") + 1);
+                    let codeDom = document.querySelector("#codeview code");
+                    codeDom.innerText = content;
+                    if(this.fileExt.find( x => x == ext) != undefined) {
+                        codeDom.classList.add(ext);
+                    }
                     this.highlightingCode();
+
+                    //여기서부터 복사 방지시의 코드
+                    if(!res.data.data.allow) { //복사방지가 걸려있다면 이미지로 전환
+                        this.allowCopy = false; //복사 기능 비활성화
+
+                        domtoimage.toPng(codeDom).then((dataUrl) => {
+                            codeDom.className = '';
+                            let img = new Image();
+                            img.src = dataUrl;
+                            codeDom.innerHTML = "";
+                            codeDom.appendChild(img);
+                            console.log(img);
+                        }).catch( (err) => {
+                            console.log('이미지 변환중 오류 발생', err);
+                        });
+                    }else{
+                        this.allowCopy = true;
+                    }
+
                 }else if(res.data.type == "redirect"){
                     location.href = res.data.url;
                 }else{

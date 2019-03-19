@@ -15,14 +15,15 @@
     "x32build": "electron-packager . lecshare --platform=win32 --arch=ia32 --out=dist32"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.7.2",
     "axios": "^0.18.0",
     "bootstrap": "^4.3.1",
+    "dom-to-image": "^2.6.0",
     "ejs": "^2.6.1",
     "electron": "^4.0.8",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
     "fs": "0.0.1-security",
+    "hawk": "^7.0.10",
     "highlight.js": "^9.15.6",
     "jquery": "^3.3.1",
     "popper.js": "^1.14.7",

@@ -21,6 +21,8 @@ const defaultProps = {
 
 let win; //메인 윈도우 창
 let shareData = {share:false, folder:''}; //공유 데이터리스트
+let defaultCopyPermission = true; //기본적으로 소스코드의 복사를 허용할 것인가.
+let connectedCount = 0; //현재 접속중인 인원 체크
 
 let allowFileExtenstion = ['js', 'html', 'java', 'css', 'vue', 'json'];
 
@@ -53,11 +55,38 @@ ipcMain.on("checkexist", (e, arg) => {
 
 ipcMain.on("setshare", (e, arg) => {
     console.log("공유 데이터 설정 요청됨");
-    console.log(arg);
     shareData = arg; //공유 데이터 넣어줌.
 });
 
+ipcMain.on("getlist", (e, arg)=>{
+    fs.readdir(arg, (err, items) => {
+        let list = items.map( x => {
+            let filename = path.join(arg, x);
+            
+            let file = fs.statSync(filename);
+            let fileData = {name:x, fullName: filename, dir:file.isDirectory(), allow:defaultCopyPermission};
+            //데이터는 파일명, 풀경로, 디렉토리 여부로 나뉘어짐.             
 
+            return fileData;
+        });
+        e.returnValue = list;
+    });
+});
+
+ipcMain.on("connected-count", (e, arg)=>{
+    e.returnValue = connectedCount; 
+});
+
+ipcMain.on("send-allow", (e, arg)=>{
+    defaultCopyPermission = arg;
+    console.log(arg);
+    if(arg){
+        e.returnValue = "복사 가능하도록 설정되었습니다.";
+    }else{
+        e.returnValue = "복사방지 기능이 설정되었습니다.";
+    }
+    
+});
 
 /************************************************
 *    App ready to go!!                          *
@@ -121,7 +150,7 @@ app.on("ready", ()=> {
                 
                 let file = fs.statSync(filename);
                 //데이터는 파일명, 풀경로, 디렉토리 여부로 나뉘어짐.     
-                return {name:x, fullName: filename, dir:file.isDirectory()};
+                return {name:x, fullName: filename, dir:file.isDirectory(), allow:defaultCopyPermission};
             });
             sendData(res, list);
         });
@@ -140,12 +169,12 @@ app.on("ready", ()=> {
 
         let dotIndex = filename.lastIndexOf(".");
         let ext = filename.substring(dotIndex + 1, filename.length);
-        console.log("확장자 " + ext);
+        
         for(let i = 0; i < allowFileExtenstion.length; i++){
             if(ext == allowFileExtenstion[i]) {
                 fs.readFile(filename, 'utf8', (err, data)=>{
                     //파일 utf8방식으로 읽어서 전송
-                    sendData(res, data);
+                    sendData(res, {file:data, allow:defaultCopyPermission});
                 });
                 return;
             }
@@ -212,7 +241,9 @@ app.on("ready", ()=> {
     let io = socketIo(server);
 
     //socket io 관련 프로토콜
+
     io.on("connection", (socket) => {
+        connectedCount++;
         socket.on('login', (data)=>{
             socket.userName = data.name;
             socket.emit('login-ok', {name:data.name});
@@ -220,11 +251,13 @@ app.on("ready", ()=> {
         //재로그인하는경우 소켓에 이름만 기록
         socket.on('re-login', (data)=>{
             socket.userName = data.name;
-        })
+        });
+
+        socket.on('disconnect', (data)=>{
+            console.log("user-disconnected");
+            connectedCount--;
+        });
     });
-
-
-
 
     //socket io 관련 프로토콜 종료
     

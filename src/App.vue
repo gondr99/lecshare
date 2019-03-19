@@ -2,7 +2,6 @@
   <div>
     <div class="logo">
       <h2>Gondr Lecture App. Ver 0.5</h2>
-      <p>귀찮다..</p>
     </div>
     <div class="row">
       <div class="col-3">
@@ -46,14 +45,11 @@ export default {
 <style>
   .logo {
     position: fixed;
-    right:10px;
+    left:10px;
     bottom:10px;
   }
 
   .logo > h2 {
     font-size:14px;
-  }
-  .logo > p {
-    font-size:10px;
   }
 </style>
