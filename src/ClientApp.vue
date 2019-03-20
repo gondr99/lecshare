@@ -147,6 +147,7 @@ export default {
         },
         showCompareWindow(){
             //코드 비교용 입력창을 띄워주는 기능
+            this.userCode = ''; 
             this.codePopup = true;
         },
         codeCompareWithOption(option){
