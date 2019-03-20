@@ -5,7 +5,7 @@
             <div class="row my-5">
                 <div class="col-12">
                     <div class="input-group">
-                        <input type="text" placeholder="사용할 이름을 5자 이내로 입력하세요" class="form-control" v-model="name"> 
+                        <input type="text" placeholder="사용할 이름을 5자 이내로 입력하세요" class="form-control" v-model="name" @keydown.enter="loginProcess"> 
                         <div class="input-group-append">
                             <button class="btn btn-success" @click="loginProcess">입장</button>
                         </div>

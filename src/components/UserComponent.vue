@@ -13,8 +13,8 @@
                     <span>{{user.name}}</span>
                 </div>
                 <div class="button-row">
-                    <button class="btn btn-sm btn-primary" @click="sendMessage(user.id)">메시지</button>
-                    <button class="btn btn-sm btn-danger">퇴장</button>
+                    <button class="btn btn-sm btn-primary" @click="openMessage(user.id)">보내기</button>
+                    <button class="btn btn-sm btn-success" @click="showSendCode">보기</button>
                 </div>
             </div>
         </div>
@@ -25,10 +25,13 @@
             <div class="inner">
                 <h4>보낼 메시지를 입력하고 전송 버튼을 누르세요</h4>
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="보낼 메시지를 입력하세요">
+                    <input type="text" class="form-control" placeholder="보낼 메시지를 입력하세요" v-model="sendMsg" @keydown.enter="sendMessage">
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button">전송</button>
+                        <button class="btn btn-outline-secondary" type="button" @click="sendMessage">전송</button>
                     </div>
+                </div>
+                <div class="row mt-5 text-right">
+                    <button class="btn btn-danger" @click="closeModal">닫기</button>
                 </div>
             </div>
         </div>
@@ -44,7 +47,7 @@ export default {
             let res = this.$root.ipc.sendSync("connected-list");
             if (res.result) {
                 //결과가 참일경우에만
-                this.userList = res.userList.filter(x => x.name != "");
+                this.userList = res.userList;
 
             } else {
                 console.log(res.msg); //디버그 콘솔로 잘못되었을 경우 출력
@@ -55,11 +58,27 @@ export default {
         return {
             userList: [],
             showPopup: false,
+            sendTarget:'',
+            sendMsg:''
         }
     },
     methods: {
-        sendMessage(socketId) {
+        openMessage(socketId) {
             this.showPopup = true;
+            this.sendTarget = socketId; //소켓아이디 넣어주고
+        },
+        sendMessage(){
+            let res = this.$root.ipc.sendSync('send-msg', {target:this.sendTarget, msg:this.sendMsg});
+            this.$root.showToast(res); //응답 출력하기.
+            this.closeModal();
+        },
+        closeModal(){
+            this.showPopup = false;
+            this.sendTarget = '';
+            this.sendMsg = '';
+        },
+        showSendCode(socketId){
+            this.$root.showToast("미구현 기능입니다."); //차후 구현예정
         }
     }
 }

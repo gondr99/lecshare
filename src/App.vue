@@ -9,7 +9,7 @@
             <ul class="nav flex-column nav-pills">
                 <a class="nav-link" v-bind:class="{active:mode == 0}" @click="changeMenu(0)">공유폴더 설정</a>
                 <a class="nav-link" v-bind:class="{active:mode == 1}" @click="changeMenu(1)">접속자 목록보기</a>
-                <a class="nav-link" v-bind:class="{active:mode == 2}" @click="changeMenu(2)">파일 업로드</a>
+                <a class="nav-link" v-bind:class="{active:mode == 2}" @click="changeMenu(2)">유사도 분석기</a>
                 <a class="nav-link" v-bind:class="{active:mode == 3}" @click="changeMenu(3)">권한 관리</a>
             </ul>
         </div>

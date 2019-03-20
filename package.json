@@ -11,8 +11,8 @@
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
     "start": "electron .",
     "watch": "webpack --watch",
-    "x64build": "electron-packager . lecshare --platform=win32 --arch=x64 --out=dist64 --overwrite",
-    "x32build": "electron-packager . lecshare --platform=win32 --arch=ia32 --out=dist32 --overwrite"
+    "x64build": "electron-packager . lecshare --asar --platform=win32 --arch=x64 --out=dist64 --overwrite",
+    "x32build": "electron-packager . lecshare --asar --platform=win32 --arch=ia32 --out=dist32 --overwrite"
   },
   "dependencies": {
     "axios": "^0.18.0",

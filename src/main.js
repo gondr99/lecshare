@@ -33,7 +33,6 @@ new Vue({
 			}, 1000);
 		},
 		setShare(data){
-			console.log(data);
 			this.ipc.send('setshare', data);
 		}
 	}

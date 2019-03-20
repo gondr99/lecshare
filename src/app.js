@@ -42,6 +42,10 @@ new Vue({
             this.user = {name:data.name};
         });
 
+        this.socket.on('teacher-msg', (data)=>{
+            alert(data); 
+        });
+
     },
     data:{
         socket:null,

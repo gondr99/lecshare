@@ -84,7 +84,7 @@ ipcMain.on("connected-list", (e, arg)=>{
         
         let clients = [];
         for(let key in sockets) {
-            clients.push({id:key, name:sockets[key].userName });
+            clients.push({id:key, name: sockets[key].userName == undefined ? "" : sockets[key].userName });
         }
         
         e.returnValue =  {result:true, userList:clients};
@@ -101,7 +101,15 @@ ipcMain.on("send-allow", (e, arg)=>{
     }else{
         e.returnValue = "복사방지 기능이 설정되었습니다.";
     }
+});
+
+ipcMain.on('send-msg', (e, arg) => {
+    let target = io.sockets.connected[arg.target];
+    if(target != undefined){
+        target.emit('teacher-msg', arg.msg);
+    }
     
+    e.returnValue = "메시지를 전송했습니다.";
 });
 
 /************************************************
