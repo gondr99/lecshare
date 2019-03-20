@@ -89,7 +89,13 @@ import domtoimage from 'dom-to-image';
 export default {
     name: 'clientApp',
     mounted(){
-        
+        document.addEventListener("keydown", (e)=>{
+            if(e.ctrlKey) {
+                this.$root.showToastMsg("콘트롤 키는 방지되어있습니다.");
+                e.preventDefault();
+                return;
+            }
+        });
         if(this.$root.user == null){
             this.$http.get('/check-login')
             .then( res => {
@@ -137,13 +143,17 @@ export default {
             });
         },
         copyCode(){
-            let el = document.createElement("textarea");
-            el.value = this.codeData;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand("copy");
-            document.body.removeChild(el);
-            this.$root.showToastMsg("코드 복사가 완료되었습니다.");
+            if(!this.allowCopy){
+                let el = document.createElement("textarea");
+                el.value = this.codeData;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand("copy");
+                document.body.removeChild(el);
+                this.$root.showToastMsg("코드 복사가 완료되었습니다.");
+            }else {
+                this.$root.showToastMsg("코드 복사가 방지되었습니다.");
+            }
         },
         showCompareWindow(){
             //코드 비교용 입력창을 띄워주는 기능
@@ -346,7 +356,6 @@ export default {
                             img.src = dataUrl;
                             codeDom.innerHTML = "";
                             codeDom.appendChild(img);
-                            console.log(img);
                         }).catch( (err) => {
                             console.log('이미지 변환중 오류 발생', err);
                         });
@@ -471,6 +480,10 @@ export default {
         border-radius: 15px;
         padding:10px;
         box-shadow: 4px 4px 2px #aaa;
+    }
+
+    #codeview {
+        user-select: none;
     }
     
 </style>

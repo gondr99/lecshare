@@ -46,8 +46,8 @@
 </template>
 
 <script>
-    import {remote} from 'electron';
-import { setInterval, clearInterval, setTimeout } from 'timers';
+    import {remote} from 'electron';    
+
     export default {
         name: 'folderComponent',
         mounted(){
@@ -68,7 +68,6 @@ import { setInterval, clearInterval, setTimeout } from 'timers';
             },
             startSync(){
                 this.refreshTimer = window.setInterval(() => {
-                    console.log("Asd");
                     this.connectedNumber = this.$root.ipc.sendSync("connected-count");
                 }, 2000);
             },

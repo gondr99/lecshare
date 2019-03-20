@@ -25,12 +25,13 @@ let defaultCopyPermission = true; //기본적으로 소스코드의 복사를 �
 let connectedCount = 0; //현재 접속중인 인원 체크
 
 let allowFileExtenstion = ['js', 'html', 'java', 'css', 'vue', 'json'];
+let io = null; //소켓IO를 저장하기 위한 변수
 
 function createWindow(){
     win = new BrowserWindow(defaultProps);
     win.setMenu(null);
     win.loadFile("index.html");
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
     win.on("closed", ()=>{
         win = null;
     });
@@ -54,7 +55,7 @@ ipcMain.on("checkexist", (e, arg) => {
 });
 
 ipcMain.on("setshare", (e, arg) => {
-    console.log("공유 데이터 설정 요청됨");
+    //console.log("공유 데이터 설정 요청됨");
     shareData = arg; //공유 데이터 넣어줌.
 });
 
@@ -77,9 +78,24 @@ ipcMain.on("connected-count", (e, arg)=>{
     e.returnValue = connectedCount; 
 });
 
+ipcMain.on("connected-list", (e, arg)=>{
+    if(io != null){
+        let sockets = io.sockets.clients().sockets;
+        
+        let clients = [];
+        for(let key in sockets) {
+            clients.push({id:key, name:sockets[key].userName });
+        }
+        
+        e.returnValue =  {result:true, userList:clients};
+    }else {
+        e.returnValue = {result:false, msg:'소켓서버가 구동되지 않았습니다'};
+    }
+});
+
 ipcMain.on("send-allow", (e, arg)=>{
     defaultCopyPermission = arg;
-    console.log(arg);
+    //console.log(arg);
     if(arg){
         e.returnValue = "복사 가능하도록 설정되었습니다.";
     }else{
@@ -238,7 +254,7 @@ app.on("ready", ()=> {
     }
 
     let server = http.createServer(expressApp);
-    let io = socketIo(server);
+    io = socketIo(server); //io는 상단에 ipc메인에 선언되어 있음.
 
     //socket io 관련 프로토콜
 
