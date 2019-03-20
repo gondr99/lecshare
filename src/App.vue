@@ -53,4 +53,8 @@ export default {
 .logo>h2 {
     font-size: 14px;
 }
+
+.nav-link {
+	cursor: pointer; 
+}
 </style>

@@ -4,6 +4,10 @@
 		<meta charset="utf-8">
 		<title>lec-electron</title>
 		<style>
+			* {
+				margin:0;
+				padding: 0;
+			}
 			#alert-window {
 				position:fixed;
 				bottom:0;
@@ -29,6 +33,12 @@
 				padding: 16px;
 				z-index: 2;
 				color:#fff;
+			}
+			.fade-enter-active, .fade-leave-active {
+				transition: opacity .5s;
+			}
+			.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+				opacity: 0;
 			}
 		</style>
 		<link rel="stylesheet" href="./dist/public/fontawesome-free-5.7.2-web/css/all.css"/>

@@ -49,6 +49,8 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
+        left:0;
+        top:0;
     }
     .center-box {
         border-radius: 20px;
