@@ -90,8 +90,8 @@ export default {
     name: 'clientApp',
     mounted(){
         document.addEventListener("keydown", (e)=>{
-            if(e.ctrlKey) {
-                this.$root.showToastMsg("콘트롤 키는 방지되어있습니다.");
+            if(e.ctrlKey && e.key == "c") {
+                this.$root.showToastMsg("복사키는 사용할 수 없습니다.");
                 e.preventDefault();
                 return;
             }
