@@ -38,6 +38,10 @@
                                 {{connectedNumber}}
                             </div>
                         </div>
+
+                        <div class="control-panel mt-2">
+                            <label for="serverIp">접속 주소 : {{ipAddress}}:9090</label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -60,6 +64,7 @@
                 connectedNumber:0,
                 allowCopy:true,
                 refreshTimer:null,
+                ipAddress:'',
             }
         },
         methods:{
@@ -100,6 +105,8 @@
                     this.$root.showToast("공유 시작되었습니다.");
                     this.$root.setShare({share:true, folder:this.dataFolder});
                     this.sharing = true;
+                    this.ipAddress = this.$root.ipc.sendSync('get-ip');
+
                     this.startSync(); //접속인원 파악
                 }else {
                     this.$root.showToast(response.msg);
@@ -108,6 +115,7 @@
             stopShare(e){ //공유 중지
                 this.dataFolder = '';
                 this.sharing = false;
+                this.allowCopy = true; //복사 허용으로 변경.
                 this.$root.setShare({share:false, folder:''});
                 console.log("공유중지");
                 this.stopSync(); //접속인원 파악 중지

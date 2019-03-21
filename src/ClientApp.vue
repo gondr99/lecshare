@@ -1,7 +1,19 @@
 <template>
     <div class="row p-2">
         <div class="col-md-3 col-xs-12">
-            <h3 class="mb-2">파일탐색 &nbsp;&nbsp;<button class="btn btn-info btn-sm" @click="reloadData"><i class="fas fa-sync-alt"></i> Reload</button></h3>
+            <h3 class="mb-2">파일탐색</h3>
+            <div class="row">
+                <div class="col-12">
+                    <button class="gondr-btn btn-sm btn-primary btn-tooltip" @click="openSendModal">
+                        <i class="fas fa-share-square"></i>
+                        <span class="tooltip-text">자신의 코드를 교사에게 전송</span>
+                    </button>
+                    <button class="gondr-btn btn-info btn-sm btn-tooltip" @click="reloadData">
+                        <i class="fas fa-sync-alt"></i>
+                        <span class="tooltip-text">현재 디렉토리 코드목록 새로고침</span>
+                    </button>
+                </div>
+            </div>
             <ul class="file-list dir">
                 <li @dblclick.prevent="loadingBefore()" v-if="current != ''">
                     <i class="far fa-folder-open"></i>
@@ -78,6 +90,25 @@
                 </div>
             </div>
         </transition>
+
+        <transition name="fade">
+            <div class="popup" v-show="sendCodePopup">
+                <div class="inner">
+                    <h3>선생님에게 전송할 코드를 입력하세요</h3>
+                    <div class="row">
+                        <div class="col-12">
+                            <textarea v-model="userCode"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 text-right">
+                            <button class="btn btn-outline-primary btn-sm" @click="sendCodeToTeacher" >전송하기</button>
+                            <button class="btn btn-outline-danger btn-sm" @click="sendCodePopup = false">취소</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
     </div>
 </template>
 
@@ -131,9 +162,19 @@ export default {
             compareResult:'',
             allowCopy:true,
             fileExt:['js', 'html', 'css', 'java', 'cpp', 'php', 'py', 'cs'],
+            sendCodePopup:false,
         }
     },
     methods:{
+        openSendModal() {
+            this.userCode = '';
+            this.sendCodePopup = true;
+        },
+        sendCodeToTeacher(){
+            this.$root.socket.emit('user-code', this.userCode);
+            this.sendCodePopup = false;
+            this.$root.showToastMsg('교사에게 코드가 전송되었습니다.');
+        },
         logout() {
             this.name = '';
             this.$http.get('/logout')
@@ -143,7 +184,7 @@ export default {
             });
         },
         copyCode(){
-            if(!this.allowCopy){
+            if(this.allowCopy){
                 let el = document.createElement("textarea");
                 el.value = this.codeData;
                 document.body.appendChild(el);
@@ -454,7 +495,7 @@ export default {
     }
 
     .popup > .inner {
-        width:500px;
+        width:600px;
         min-height:400px;
         background-color: #fff;
         border-radius: 8px;
@@ -484,6 +525,44 @@ export default {
 
     #codeview {
         user-select: none;
+    }
+
+    .gondr-btn {
+        display:inline-block;
+        font-weight: 400;
+        text-align: center;
+        user-select: none;
+        border:1px solid transparent;
+        padding: .3rem .65rem;
+        font-size: 0.7rem;
+        line-height: 1.5;
+        border-radius: .25rem;
+        transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+
+    .btn-tooltip {
+        position: relative;
+    }
+    .btn-tooltip .tooltip-text{
+        visibility: hidden;
+        background-color: rgba(0,0,0,0.8);
+        color:#fff;
+        text-align: center;
+        position:absolute;
+        padding:8px 12px;
+        z-index: 5;
+        top:100%;
+        left:50%;
+        transition:all 0.5s;
+        opacity: 0;
+        border-radius: 0.5rem;
+        min-width:200px;
+        font-size:0.9em;
+    }
+
+    .btn-tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
     }
     
 </style>

@@ -14,7 +14,10 @@
                 </div>
                 <div class="button-row">
                     <button class="btn btn-sm btn-primary" @click="openMessage(user.id)">보내기</button>
-                    <button class="btn btn-sm btn-success" @click="showSendCode">보기</button>
+                    <button class="btn btn-sm btn-success" @click="showSendCode(user.id)">
+                        보기
+                        <span class="badge badge-light">{{user.cnt}}</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -30,8 +33,39 @@
                         <button class="btn btn-outline-secondary" type="button" @click="sendMessage">전송</button>
                     </div>
                 </div>
-                <div class="row mt-5 text-right">
+                <div class="row text-right">
                     <button class="btn btn-danger" @click="closeModal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </transition>
+
+    <transition name="fade">
+        <div class="popup" v-if="showCodeListPopup">
+            <div class="inner">
+                <div class="row">
+                    <div class="col-12">
+                        <ul class="list-group">
+                            <li class="list-group-item" v-for="code in codeList" :key="code.idx">
+                                <div class="code-item">
+                                    <label>{{code.code.substring(0, 10)}}...</label>
+                                    <div class="btn-row">
+                                        <button class="gondr-btn btn-info"  @click="readCode">읽기</button>
+                                        <button class="gondr-btn btn-warning" @click="deleteCode(code.idx)">삭제</button>
+                                    </div>
+                                </div>
+                                <div class="code-info" v-show="code.show">
+                                    {{code.code}}
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12 text-right">
+                        <button class="btn btn-sm btn-primary" @click="showCodeListPopup = false">모두 삭제</button>
+                        <button class="btn btn-sm btn-danger" @click="closeSendCode">닫기</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -47,8 +81,15 @@ export default {
             let res = this.$root.ipc.sendSync("connected-list");
             if (res.result) {
                 //결과가 참일경우에만
-                this.userList = res.userList;
-
+                this.userList = res.userList.map( x => {
+                    //id, name 
+                    if(this.$root.userCodeList[x.id] != undefined ){
+                        x.cnt = this.$root.userCodeList[x.id].length;
+                    }else{
+                        x.cnt = 0;
+                    }
+                    return x;
+                });
             } else {
                 console.log(res.msg); //디버그 콘솔로 잘못되었을 경우 출력
             }
@@ -59,7 +100,10 @@ export default {
             userList: [],
             showPopup: false,
             sendTarget:'',
-            sendMsg:''
+            sendMsg:'',
+            showCodeListPopup:false,
+            codeList:[],
+            codeOpenSocket:'',
         }
     },
     methods: {
@@ -78,7 +122,34 @@ export default {
             this.sendMsg = '';
         },
         showSendCode(socketId){
-            this.$root.showToast("미구현 기능입니다."); //차후 구현예정
+            this.codeList = this.$root.userCodeList[socketId].map( (x, idx) => {
+                return {code:x, idx:idx, show:false};
+            });
+
+            if(this.codeList == undefined) {
+                this.$root.showToast("해당 유저가 전송한 코드가 없습니다.");
+                return;
+            }
+
+            this.showCodeListPopup = true;
+            this.codeOpenSocket = socketId;
+        },
+        closeSendCode(){
+            this.showCodeListPopup = false;
+            this.codeOpenSocket = '';
+        },
+        //유저가 전송한 코드를 읽기
+        readCode(idx){
+            let infoDiv = event.target.parentElement.parentElement.nextElementSibling;
+            if(infoDiv.style.display === "block"){
+                infoDiv.style.display = "none";
+            }else {
+                infoDiv.style.display = "block";
+            }
+        },
+        //유저가 전송한 코드를 삭제하기
+        deleteCode(){
+
         }
     }
 }
@@ -119,11 +190,49 @@ export default {
     align-items: center;
 }
 
-.popup>.inner {
+.popup > .inner {
     width: 70%;
-    height: 30%;
+    min-height: 30%;
     background-color: #fff;
     border-radius: 10px;
     padding:20px;
+    display:flex;
+    flex-direction: column;
+    justify-content: space-around;
 }
+
+.code-item {
+    width:100%;
+    display: flex;
+}
+
+.code-item > label {
+    flex:3;
+}
+
+.code-item > .button-row {
+    flex:1;
+}
+
+.code-info {
+    width:100%;
+    padding:4px 12px;
+    display:none;
+    background-color: #fff;
+}
+
+.gondr-btn {
+    display:inline-block;
+    font-weight: 400;
+    text-align: center;
+    user-select: none;
+    border:1px solid transparent;
+    padding: .25rem .55rem;
+    font-size: 0.7rem;
+    line-height: 1.5;
+    border-radius: .25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+
 </style>

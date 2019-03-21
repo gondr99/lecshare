@@ -14,15 +14,20 @@ Vue.component('app', App);
 new Vue({
 	el: '#app',
 	mounted(){
-		this.ipc.on("msg", (e, arg) => {
-			console.log(arg);
+		this.ipc.on("user-code", (e, arg) => {
+			if(this.userCodeList[arg.id] == undefined){
+				this.userCodeList[arg.id] = [arg.code];
+			}else{
+				this.userCodeList[arg.id].push(arg.code);
+			}
 		});
 	},
 	data:{
 		toastMsg:'',
 		toast:false,
 		shareData:{share:false, folder:''},
-		ipc:ipcRenderer
+		ipc:ipcRenderer,
+		userCodeList:[]
 	},
 	methods:{
 		showToast(msg){

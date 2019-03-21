@@ -10,13 +10,13 @@ const socketIo = require('socket.io');
 const qs = require('querystring');
 
 const session = require('express-session');
-
+const os = require('os');
 
 const defaultProps = {
     width: 800,
     height: 600,
-    resizable: false
-    // nodeIntegration: false
+    resizable: false,
+    nodeIntegration: true
 };
 
 let win; //메인 윈도우 창
@@ -26,7 +26,20 @@ let connectedCount = 0; //현재 접속중인 인원 체크
 
 let allowFileExtenstion = ['js', 'html', 'java', 'css', 'vue', 'json'];
 let io = null; //소켓IO를 저장하기 위한 변수
+let server = null; //익스프레스 서버를 저장하기 위한 변수
 
+let ifaces = os.networkInterfaces();
+let serverIpAddress = '';
+
+for(let key in ifaces ){
+    for(let i = 0; i < ifaces[key].length; i++){
+        if(ifaces[key][i].family == 'IPv4' && ifaces[key][i].address != '127.0.0.1') {
+            serverIpAddress = ifaces[key][i].address;
+        }
+    }
+}
+
+//일렉트론 실행 메인함수
 function createWindow(){
     win = new BrowserWindow(defaultProps);
     win.setMenu(null);
@@ -112,6 +125,13 @@ ipcMain.on('send-msg', (e, arg) => {
     e.returnValue = "메시지를 전송했습니다.";
 });
 
+ipcMain.on('get-ip', (e, arg)=>{
+    if(serverIpAddress != ''){
+        e.returnValue = serverIpAddress;
+    }else{
+        e.returnValue = '알수없는 IP';
+    }
+});
 /************************************************
 *    App ready to go!!                          *
 * Express Setting here!!!                       *
@@ -173,7 +193,7 @@ app.on("ready", ()=> {
                 let filename = path.join(shareData.folder, current, x);
                 
                 let file = fs.statSync(filename);
-                //데이터는 파일명, 풀경로, 디렉토리 여부로 나뉘어짐.     
+                //데이터는 파일명, 풀경로, 디렉토리 여부로 나뉘어짐. 
                 return {name:x, fullName: filename, dir:file.isDirectory(), allow:defaultCopyPermission};
             });
             sendData(res, list);
@@ -198,6 +218,7 @@ app.on("ready", ()=> {
             if(ext == allowFileExtenstion[i]) {
                 fs.readFile(filename, 'utf8', (err, data)=>{
                     //파일 utf8방식으로 읽어서 전송
+                    console.log(defaultCopyPermission) ;
                     sendData(res, {file:data, allow:defaultCopyPermission});
                 });
                 return;
@@ -261,7 +282,7 @@ app.on("ready", ()=> {
         res.end(JSON.stringify({ result: false, type:'redirect', url:url }));
     }
 
-    let server = http.createServer(expressApp);
+    server = http.createServer(expressApp);
     io = socketIo(server); //io는 상단에 ipc메인에 선언되어 있음.
 
     //socket io 관련 프로토콜
@@ -277,6 +298,11 @@ app.on("ready", ()=> {
             socket.userName = data.name;
         });
 
+        //학생의 코드 전송시 이를 보내줌
+        socket.on('user-code', (data) => {
+            win.webContents.send('user-code', {id:socket.id, code:data});
+        });
+
         socket.on('disconnect', (data)=>{
             console.log("user-disconnected");
             connectedCount--;
@@ -288,9 +314,23 @@ app.on("ready", ()=> {
     server.listen(expressApp.get('port'), ()=> {
         console.log('Express 엔진이 port ' + expressApp.get('port') + '에서 실행중입니다');
     });
-    //익스프레스 종료
 
     createWindow();
 });
 
 
+app.on('window-all-closed', ()=>{
+    console.log("앱 종료 시작");
+    if(server != null ){
+        server.close(() => {
+            console.log("서버앱 종료 완료");
+            app.quit();
+        });
+        //1초이내로 서버가 안닫히면 그대로 강종
+        setTimeout( () => {
+            app.quit();
+        }, 1000);
+    }else{
+        app.quit();
+    }
+});
