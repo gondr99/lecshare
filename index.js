@@ -16,7 +16,7 @@ const defaultProps = {
     width: 800,
     height: 600,
     resizable: false,
-    nodeIntegration: true
+    webPreferences:{nodeIntegration: true}
 };
 
 let win; //메인 윈도우 창

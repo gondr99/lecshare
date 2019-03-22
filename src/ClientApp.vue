@@ -2,15 +2,15 @@
     <div class="row p-2">
         <div class="col-md-3 col-xs-12">
             <h3 class="mb-2">파일탐색</h3>
-            <div class="row">
+            <div class="row my-2">
                 <div class="col-12">
-                    <button class="gondr-btn btn-sm btn-primary btn-tooltip" @click="openSendModal">
-                        <i class="fas fa-share-square"></i>
-                        <span class="tooltip-text">자신의 코드를 교사에게 전송</span>
-                    </button>
                     <button class="gondr-btn btn-info btn-sm btn-tooltip" @click="reloadData">
                         <i class="fas fa-sync-alt"></i>
                         <span class="tooltip-text">현재 디렉토리 코드목록 새로고침</span>
+                    </button>
+                    <button class="gondr-btn btn-sm btn-primary btn-tooltip" @click="openSendModal">
+                        <i class="fas fa-share-square"></i>
+                        <span class="tooltip-text">자신의 코드를 교사에게 전송</span>
                     </button>
                 </div>
             </div>
@@ -163,6 +163,7 @@ export default {
             allowCopy:true,
             fileExt:['js', 'html', 'css', 'java', 'cpp', 'php', 'py', 'cs'],
             sendCodePopup:false,
+            sendTimer:false,
         }
     },
     methods:{
@@ -171,9 +172,17 @@ export default {
             this.sendCodePopup = true;
         },
         sendCodeToTeacher(){
+            if(this.sendTimer){
+                this.$root.showToastMsg("코드는 한번 전송후 30초가 지나야 전송 가능합니다.");
+                return;
+            }
             this.$root.socket.emit('user-code', this.userCode);
             this.sendCodePopup = false;
             this.$root.showToastMsg('교사에게 코드가 전송되었습니다.');
+            this.sendTimer = true;
+            setTimeout(()=>{
+                this.sendTimer = false;
+            }, 30000);
         },
         logout() {
             this.name = '';
@@ -558,6 +567,10 @@ export default {
         border-radius: 0.5rem;
         min-width:200px;
         font-size:0.9em;
+    }
+
+    .btn-tooltip:focus {
+        outline:none !important;
     }
 
     .btn-tooltip:hover .tooltip-text {

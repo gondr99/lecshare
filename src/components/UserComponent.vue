@@ -45,25 +45,25 @@
             <div class="inner">
                 <div class="row">
                     <div class="col-12">
-                        <ul class="list-group">
+                        <ul class="list-group code-ul-list">
                             <li class="list-group-item" v-for="code in codeList" :key="code.idx">
                                 <div class="code-item">
                                     <label>{{code.code.substring(0, 10)}}...</label>
                                     <div class="btn-row">
-                                        <button class="gondr-btn btn-info"  @click="readCode">읽기</button>
+                                        <button class="gondr-btn btn-info"  @click="readCode(code.idx)">읽기</button>
                                         <button class="gondr-btn btn-warning" @click="deleteCode(code.idx)">삭제</button>
                                     </div>
                                 </div>
                                 <div class="code-info" v-show="code.show">
-                                    {{code.code}}
+                                    <pre><code></code></pre>
                                 </div>
                             </li>
                         </ul>
                     </div>
                 </div>
-                <div class="row mt-2">
+                <div class="row mt-3">
                     <div class="col-12 text-right">
-                        <button class="btn btn-sm btn-primary" @click="showCodeListPopup = false">모두 삭제</button>
+                        <button class="btn btn-sm btn-primary" @click="deleteCode(0, true)">모두 삭제</button>
                         <button class="btn btn-sm btn-danger" @click="closeSendCode">닫기</button>
                     </div>
                 </div>
@@ -74,6 +74,9 @@
 </template>
 
 <script>
+import hljs from 'highlight.js';
+import 'highlight.js/styles/github.css';
+
 export default {
     name: 'folderComponent',
     mounted() {
@@ -123,7 +126,8 @@ export default {
         },
         showSendCode(socketId){
             this.codeList = this.$root.userCodeList[socketId].map( (x, idx) => {
-                return {code:x, idx:idx, show:false};
+                //코드값, 인덱스값, 보여지고있는지 여부, 하이라이팅되었는지 여부.
+                return {code:x, idx:idx, show:false, init:false};
             });
 
             if(this.codeList == undefined) {
@@ -141,15 +145,24 @@ export default {
         //유저가 전송한 코드를 읽기
         readCode(idx){
             let infoDiv = event.target.parentElement.parentElement.nextElementSibling;
-            if(infoDiv.style.display === "block"){
-                infoDiv.style.display = "none";
-            }else {
-                infoDiv.style.display = "block";
+            this.codeList[idx].show = !this.codeList[idx].show;
+            if(this.codeList[idx].show && !this.codeList[idx].init){
+                let code = infoDiv.querySelector("code");
+                code.innerText = this.codeList[idx].code;
+                hljs.highlightBlock(code);
             }
         },
         //유저가 전송한 코드를 삭제하기
-        deleteCode(){
-
+        deleteCode(idx, all = false){
+            if(all){
+                this.$root.userCodeList[this.codeOpenSocket] = [];
+                this.codeList = [];
+                return;
+            }
+            if(this.$root.userCodeList[this.codeOpenSocket] != undefined) {
+                this.$root.userCodeList[this.codeOpenSocket].splice(idx, 1);
+                this.codeList.splice(idx, 1);
+            }
         }
     }
 }
@@ -163,7 +176,7 @@ export default {
     grid-auto-rows: minmax(100px, auto)
 }
 
-/* 한줄에 5개씩 배치 */
+/* 한줄에 3개씩 배치 */
 .user-div {
     border: 1px solid transparent;
     border-radius: 4px;
@@ -172,6 +185,7 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    background-color: #ccc;
 }
 
 .user-div>.button-row {
@@ -193,6 +207,7 @@ export default {
 .popup > .inner {
     width: 70%;
     min-height: 30%;
+    max-height: 90%;
     background-color: #fff;
     border-radius: 10px;
     padding:20px;
@@ -214,11 +229,19 @@ export default {
     flex:1;
 }
 
+.code-ul-list {
+    height:380px;
+    overflow-y: scroll;
+}
+
 .code-info {
     width:100%;
     padding:4px 12px;
-    display:none;
     background-color: #fff;
+    overflow: hidden;
+    transition: all 0.5s;
+    height:200px;
+    overflow-y:scroll;
 }
 
 .gondr-btn {

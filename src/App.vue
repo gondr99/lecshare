@@ -16,6 +16,7 @@
         <div class="col-9">
             <folder-component v-show="mode == 0"></folder-component>
 			<user-component v-show="mode == 1"></user-component>
+            <similar-component v-show="mode == 2"></similar-component>
         </div>
     </div>
 </div>
