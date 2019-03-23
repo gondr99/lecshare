@@ -36,15 +36,12 @@
 
 <script>
 import {remote} from 'electron';
+import path from 'path';
 
 export default {
     name: 'app',
     mounted() {
-        this.$root.ipc.on("progress", (e, arg)=>{
-            this.progress = arg.progress;
-            this.origin = arg.ori;
-            this.other = arg.other;
-		});
+        
     },
     data() {
         return {
@@ -53,7 +50,8 @@ export default {
             similarList:[],
             progress:0,
             origin:'',
-            other:''
+            other:'',
+            worker:null,
         }
     },
     methods: {
@@ -71,25 +69,25 @@ export default {
             });
         },
         startCompare(){
-            this.fileList = this.$root.ipc.send("get-compare-list", {folder:this.dataFolder});
-            let totalCnt = this.fileList.length * this.fileList.length - this.fileList.length; //수행횟수
-            let currentCnt = 0;
-            for(let i = 0; i < this.fileList.length; i++){
-                this.similarList[i] = [];
-                for(let j = 0; j < this.fileList.length; j++){
-                    currentCnt++;
-                    this.progress = currentCnt / totalCnt;
-                    if(i == j ) continue;
+            this.fileList = this.$root.ipc.sendSync("get-compare-list", {folder:this.dataFolder});
+            
+            this.worker = new Worker('./dist/compare.js');
 
-                    console.log(this.fileList[i].name, this.fileList[j].name);
-                    let similar = this.compareCode(this.fileList[i].content, this.fileList[j].content);
-                    if(similar > 70){
-                        this.similarList[i].push({file:this.fileList[j].name, similar:similar});
-                    }
+            this.worker.postMessage(this.fileList);
+            
+            this.worker.addEventListener('message', (data)=>{
+                console.log(data.data);
+                if(data.data.type === 'progress'){
+                    this.origin = data.data.ori;
+                    this.other = data.data.other;
+                    this.progress = data.data.value;
+                }else if (data.data.type === 'complete') {
+                    this.origin = '';
+                    this.other = '';
+                    this.progress = '100';
                 }
-            }
-
-            console.log(this.similarList);
+                
+            });
         },
 
     }

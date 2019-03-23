@@ -61,7 +61,7 @@
             </div>
             <div class="row">
                 <div class="col-12">
-                    <div id="codeview">
+                    <div id="codeview" v-bind:style="{userSelect: allowCopy ? '' : 'none'}">
                         <pre><code></code></pre>
                     </div>
                 </div>
@@ -161,7 +161,7 @@ export default {
             comparedLineList:[],
             compareResult:'',
             allowCopy:true,
-            fileExt:['js', 'html', 'css', 'java', 'cpp', 'php', 'py', 'cs'],
+            fileExt:['js', 'html', 'css', 'java', 'cpp', 'php', 'py', 'cs', 'jsp'],
             sendCodePopup:false,
             sendTimer:false,
         }
@@ -530,10 +530,6 @@ export default {
         border-radius: 15px;
         padding:10px;
         box-shadow: 4px 4px 2px #aaa;
-    }
-
-    #codeview {
-        user-select: none;
     }
 
     .gondr-btn {
