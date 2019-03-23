@@ -13,23 +13,85 @@
         </div>
     </div>
 
+    <div class="row text-right" v-if="dataFolder != ''">
+        <div class="col-9 align-item-center">
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" v-bind:style="{width: progress + '%'}">{{progress}}%</div>
+            </div>
+        </div>
+        <div class="col-3">
+            <button class="btn btn-sm btn-outline-info" @click="startCompare">검사 시작</button>
+        </div>
+    </div>
+
+    <div class="row" v-show="origin != ''">
+        <div class="col-12">
+            {{origin}} 과 {{other}} 를 비교중입니다..
+        </div>
+    </div>
+
+
 </div>
 </template>
 
 <script>
+import {remote} from 'electron';
+
 export default {
     name: 'app',
     mounted() {
+        this.$root.ipc.on("progress", (e, arg)=>{
+            this.progress = arg.progress;
+            this.origin = arg.ori;
+            this.other = arg.other;
+		});
     },
     data() {
         return {
-            dataFolder:''
+            dataFolder:'',
+            fileList:[],
+            similarList:[],
+            progress:0,
+            origin:'',
+            other:''
         }
     },
     methods: {
         showReadDialog(){
+            remote.dialog.showOpenDialog({ 
+                title:"과제가 담긴 폴더를 선택하세요.",
+                properties: ["openDirectory"]
+            }, (folderPaths) => {
+                if(folderPaths === undefined){
+                    console.log("목적 폴더가 선택되지 않음.");
+                    return;
+                }else{
+                    this.dataFolder = folderPaths[0];
+                }
+            });
+        },
+        startCompare(){
+            this.fileList = this.$root.ipc.send("get-compare-list", {folder:this.dataFolder});
+            let totalCnt = this.fileList.length * this.fileList.length - this.fileList.length; //수행횟수
+            let currentCnt = 0;
+            for(let i = 0; i < this.fileList.length; i++){
+                this.similarList[i] = [];
+                for(let j = 0; j < this.fileList.length; j++){
+                    currentCnt++;
+                    this.progress = currentCnt / totalCnt;
+                    if(i == j ) continue;
 
-        }
+                    console.log(this.fileList[i].name, this.fileList[j].name);
+                    let similar = this.compareCode(this.fileList[i].content, this.fileList[j].content);
+                    if(similar > 70){
+                        this.similarList[i].push({file:this.fileList[j].name, similar:similar});
+                    }
+                }
+            }
+
+            console.log(this.similarList);
+        },
+
     }
 }
 </script>
