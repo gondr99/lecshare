@@ -1,7 +1,7 @@
 <template>
 <div>
     <div class="logo">
-        <h2>Gondr Lecture App. Ver 0.5</h2>
+        <h2>Gondr Lecture App. Ver 1.0</h2>
 		<button class="btn btn-sm btn-danger" @click="openDevTools">개발도구</button>
     </div>
     <div class="row">
@@ -17,6 +17,7 @@
             <folder-component v-show="mode == 0"></folder-component>
 			<user-component v-show="mode == 1"></user-component>
             <similar-component v-show="mode == 2"></similar-component>
+            <admin-component v-show="mode == 3"></admin-component>
         </div>
     </div>
 </div>

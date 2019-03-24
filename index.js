@@ -28,7 +28,7 @@ let shareData = {share:false, folder:''}; //공유 데이터리스트
 let defaultCopyPermission = true; //기본적으로 소스코드의 복사를 허용할 것인가.
 let connectedCount = 0; //현재 접속중인 인원 체크
 
-let allowFileExtenstion = ['js', 'html', 'java', 'css', 'vue', 'json', 'jsp'];
+let allowFileExtenstion = [];
 let io = null; //소켓IO를 저장하기 위한 변수
 let server = null; //익스프레스 서버를 저장하기 위한 변수
 
@@ -153,6 +153,13 @@ ipcMain.on('get-compare-list', (e, arg)=>{
     });
 });
 
+ipcMain.on('read-extention', (e, arg) => {
+    e.returnValue = allowFileExtenstion;
+});
+
+ipcMain.on('set-extention', (e, arg)=>{
+    allowFileExtenstion = arg; //가능한 파일리스트 설정하기.
+});
 
 /************************************************
 *    App ready to go!!                          *

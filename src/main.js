@@ -3,6 +3,7 @@ import App from './App.vue'
 import FolderComponent from './components/FolderComponent';
 import UserComponent from './components/UserComponent';
 import SimilariryComponent from './components/SimilarityComponent';
+import AdminComponent from './components/AdminComponent';
 
 import {ipcRenderer} from 'electron';
 import 'bootstrap';
@@ -11,6 +12,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 Vue.component('folder-component', FolderComponent);
 Vue.component('user-component', UserComponent);
 Vue.component('similar-component', SimilariryComponent);
+Vue.component('admin-component', AdminComponent);
 Vue.component('app', App);
 
 new Vue({
