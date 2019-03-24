@@ -48,7 +48,8 @@ function createWindow(){
     win = new BrowserWindow(defaultProps);
     win.setMenu(null);
     win.loadFile("index.html");
-    win.webContents.openDevTools();
+    //디버깅용 개발툴 자동으로 띄워주는 코드
+    //win.webContents.openDevTools();  
     win.on("closed", ()=>{
         win = null;
     });

@@ -6,20 +6,30 @@ function startCompare(list){
     let totalCnt = list.length * list.length - list.length; //수행횟수
     let currentCnt = 0;
     let similarList = [];
+
     for(let i = 0; i < list.length; i++){
-        similarList[i] = [];
+        similarList[i] = {idx:i, name:list[i].name, list:[], show:false};
+    }
+
+    for(let i = 0; i < list.length; i++){
         for(let j = 0; j < list.length; j++){
             if(i == j ) continue;
 
+            //진행율 전파
             currentCnt++;
             let progress = Math.floor(currentCnt / totalCnt * 100);
-            //진행율 전파
+            
+            if(similarList[i].list.find(x => x.file === list[j].name) !== undefined){
+                //이미 유사도 분석이 끝난 경우
+                continue;
+            }
+
             self.postMessage({type:'progress', value:progress, ori:list[i].name, other:list[j].name});
-            //win.webContents.send('progress', {ori:list[i], other:list[j], progress:progress});
 
             let similar = compareCode(list[i].content, list[j].content);
             if(similar > 70){
-                similarList[i].push({file:list[j].name, similar:similar});
+                similarList[i].list.push({file:list[j].name, similar:similar});
+                similarList[j].list.push({file:list[i].name, similar:similar});
             }
         }
     }

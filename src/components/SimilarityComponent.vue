@@ -30,6 +30,33 @@
         </div>
     </div>
 
+    <div class="row" v-show="similarList.length != 0">
+        <div class="col-12">
+            <ul class="list-group">
+                <li class="list-group-item" v-for="s in similarList" :key="s.idx">
+                    <div class="similar-item d-flex justify-content-between align-items-center" @click="showSimilarList(s.idx)">
+                        <span>{{s.name}}</span>
+                        <div v-if="s.list.length != 0">
+                            유사코드 수 : 
+                            <span class="badge badge-primary badge-pill">{{ s.list.length }}</span>
+                        </div>
+                    </div>
+                    <div class="similar-info" v-show="s.show">
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center" v-for="item in s.list" :key="item.file">
+                                        {{item.file}}
+                                        <span class="badge badge-primary badge-pill">{{item.similar}}%</span>
+                                    </li>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
 
 </div>
 </template>
@@ -52,6 +79,7 @@ export default {
             origin:'',
             other:'',
             worker:null,
+            comparing:false
         }
     },
     methods: {
@@ -69,8 +97,12 @@ export default {
             });
         },
         startCompare(){
+            if(this.comparing){
+                this.$root.showToast("검사가 진행중입니다. 추가 검사를 할 수 없습니다.");
+                return;
+            }
+            this.comparing = true;
             this.fileList = this.$root.ipc.sendSync("get-compare-list", {folder:this.dataFolder});
-            
             this.worker = new Worker('./dist/compare.js');
 
             this.worker.postMessage(this.fileList);
@@ -85,11 +117,19 @@ export default {
                     this.origin = '';
                     this.other = '';
                     this.progress = '100';
+                    this.similarList = data.data.list;
+                    this.$root.showToast("검사 완료");
+                    this.comparing = false;
                 }
-                
             });
         },
-
+        showSimilarList(idx){
+            if(this.similarList[idx].list.length == 0){
+                this.$root.showToast("유사한 코드가 없습니다.");
+                return;
+            }
+            this.similarList[idx].show = !this.similarList[idx].show;
+        }
     }
 }
 </script>
