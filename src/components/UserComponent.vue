@@ -8,13 +8,13 @@
 
     <div class="row mb-2">
         <div class="col-12 user-list-div">
-            <div class="user-div" v-for="user in userList" :key="user.id">
+            <div class="user-div" v-bind:class="{noty:user.cnt != 0}" v-for="user in userList" :key="user.id">
                 <div class="info-row">
                     <span>{{user.name}}</span>
                 </div>
                 <div class="button-row">
                     <button class="btn btn-sm btn-primary" @click="openMessage(user.id)">보내기</button>
-                    <button class="btn btn-sm btn-success" @click="showSendCode(user.id)">
+                    <button class="btn btn-sm btn-success"  @click="showSendCode(user.id)">
                         보기
                         <span class="badge badge-light">{{user.cnt}}</span>
                     </button>
@@ -178,7 +178,7 @@ export default {
 
 /* 한줄에 3개씩 배치 */
 .user-div {
-    border: 1px solid transparent;
+    border: 2px solid transparent;
     border-radius: 4px;
     box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
     padding: 10px;
@@ -256,6 +256,25 @@ export default {
     border-radius: .25rem;
     transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
+
+.noty {
+    animation: notify 1s linear infinite;
+}
+
+@keyframes notify {
+    0% {
+        border-color:transparent;
+    }
+
+    50% {
+        border-color:#2a3cad;
+    }
+
+    100% {
+        border-color:transparent;
+    }
+}
+
 
 
 </style>
