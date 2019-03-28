@@ -5,7 +5,7 @@ import UserComponent from './components/UserComponent';
 import SimilariryComponent from './components/SimilarityComponent';
 import AdminComponent from './components/AdminComponent';
 
-import {ipcRenderer} from 'electron';
+import {ipcRenderer, shell} from 'electron';
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -25,13 +25,28 @@ new Vue({
 				this.userCodeList[arg.id].push(arg.code);
 			}
 		});
+	
+		this.ipc.on('update-need', (e, arg) => {
+			alert('서버에 신버전이 등록되었습니다. 업그레이드 해주세요.');
+			shell.openExternal("http://www.gmsgondr.net/product");
+		});
+
+		this.ipc.send('mount-complete');
+
+		this.ipc.on('send-version', (e, arg)=>{
+			this.version = arg.version;
+		});
+
+		this.shell = shell;
 	},
 	data:{
 		toastMsg:'',
 		toast:false,
 		shareData:{share:false, folder:''},
 		ipc:ipcRenderer,
-		userCodeList:[]
+		userCodeList:[],
+		version:'',
+		shell:null
 	},
 	methods:{
 		showToast(msg){

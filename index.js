@@ -7,6 +7,8 @@ const http = require('http');
 const path = require('path');
 const socketIo = require('socket.io');
 
+const request = require('request');
+
 const qs = require('querystring');
 
 const session = require('express-session');
@@ -22,6 +24,8 @@ const defaultProps = {
 		nodeIntegrationInWorker: true,
     }
 };
+
+const version = "1.0.0";
 
 let win; //메인 윈도우 창
 let shareData = {share:false, folder:''}; //공유 데이터리스트
@@ -89,6 +93,18 @@ ipcMain.on("getlist", (e, arg)=>{
             return fileData;
         });
         e.returnValue = list;
+    });
+});
+
+ipcMain.on('mount-complete', (e, arg)=>{
+    request('http://data.gondr.net/version.php?product=lecshare', {}, (err, res, body) => {
+        let data = JSON.parse(body);
+        console.log(data.version);
+        if(data.version != undefined && data.version > version) {
+            win.webContents.send('update-need', {version:data.version, publishedDate:data.publishedDate});
+        }else{
+            win.webContents.send('send-version', {version:version});
+        }
     });
 });
 

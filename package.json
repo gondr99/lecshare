@@ -26,6 +26,7 @@
     "highlight.js": "^9.15.6",
     "jquery": "^3.3.1",
     "popper.js": "^1.14.7",
+    "request": "^2.88.0",
     "socket.io": "^2.2.0",
     "vue": "^2.5.11"
   },
