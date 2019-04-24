@@ -318,11 +318,15 @@ export default {
                         let changeCode = this.encodeHTML(oriCode.substr(preX, dx));
                         if(changeCode.length != 1 || (changeCode.charCodeAt(0) != 10 && changeCode.charCodeAt(0) != 13)){
                             resultString += `<span class="red">${changeCode}</span>`;
+                        }else if( changeCode.charCodeAt(0) == 13) { //엔터키일 경우 span으로 둘러싸지 않고 처리
+                            resultString += changeCode;
                         }
                     }else if(dx < dy){ //삽입
                         let changeCode = this.encodeHTML(myCode.substr(preY, dy));
                         if(changeCode.length != 1 || (changeCode.charCodeAt(0) != 10 && changeCode.charCodeAt(0) != 13)){
                             resultString += `<span class="yellow">${changeCode}</span>`;
+                        }else if( changeCode.charCodeAt(0) == 13) {
+                            resultString += changeCode;
                         }
                     }
                 }else {
@@ -415,8 +419,10 @@ export default {
 
                 }else if(res.data.type == "redirect"){
                     location.href = res.data.url;
-                }else{
-                    alert("데이터 전송 실패");
+                }else if(res.data.type == "error" && res.data.msg !== undefined ){
+                    alert(res.data.msg);
+                }else {
+                    alert("오류 발생. F5 키를 눌러 새로고침하세요");
                 }
             });
         },

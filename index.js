@@ -25,7 +25,12 @@ const defaultProps = {
     }
 };
 
-const version = "1.0.0";
+const version = "1.0.1";
+/***********************************************
+ * 사용자 이름 5글자 이내로 사용하도록 함.        *
+ * 소스코드에서 enter키가 제대로 보이도록 함.     *
+ * 폴더 공유해제시나 새로 공유시 에러 수정함.     *
+ ***********************************************/
 
 let win; //메인 윈도우 창
 let shareData = {share:false, folder:''}; //공유 데이터리스트
@@ -234,6 +239,10 @@ app.on("ready", ()=> {
         let current = req.query.path;
 
         fs.readdir(path.join(shareData.folder, current), (err, items) => {
+            if(items === undefined || items === null){
+                sendError(res, "서버 공유데이터가 변경되었습니다. 페이지를 새로고침 하세요.");
+                return;
+            }
             let list = items.map( x => {
                 let filename = path.join(shareData.folder, current, x);
                 

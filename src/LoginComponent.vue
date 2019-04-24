@@ -24,13 +24,19 @@ export default {
     },
     data(){
         return {
-            msg:'Welcome to Gondr'
+            msg:'Welcome to Gondr',
+            name:''
         }
     },
     methods:{
         loginProcess(){ //로그인처리 프로세스
             if(!this.$root.socket){
                 alert("연결이 설정되지 않았습니다. 서버를 확인하세요.");
+                return;
+            }
+
+            if(this.name.length > 5) {
+                alert("5글자 이상의 닉네임은 허용되지 않습니다.");
                 return;
             }
             
