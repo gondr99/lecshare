@@ -296,13 +296,9 @@ app.on("ready", ()=> {
     });
 
     function checkPossible(res, filename){
-        if(!shareData.share){
+        if(!shareData.share) {
             sendError(res, "현재 서버에서 데이터를 공유하고 있지 않습니다");
             return false;
-        }
-
-        if(!shareData.share){
-            sendError(res, "현재 공유중이지 않습니다."); return false;
         }
 
         if(filename === undefined) {
